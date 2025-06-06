@@ -9,13 +9,12 @@ import (
 )
 
 type Comment struct {
-	ID         int        `json:"id"`
-	PostID     int        `json:"postID"`
-	AuthorID   uuid.UUID  `json:"authorID"`
-	Text       string     `json:"text"`
-	CreateDate time.Time  `json:"createDate"`
-	ParentID   *int       `json:"parentID,omitempty"`
-	Replies    []*Comment `json:"replies"`
+	ID        int64     `json:"id"`
+	AuthorID  uuid.UUID `json:"authorID"`
+	PostID    int64     `json:"postID"`
+	ParentID  *int64    `json:"parentID,omitempty"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Mutation struct {
@@ -23,8 +22,8 @@ type Mutation struct {
 
 type NewComment struct {
 	AuthorID uuid.UUID `json:"authorID"`
-	PostID   string    `json:"postID"`
-	ParentID *string   `json:"parentID,omitempty"`
+	PostID   int64     `json:"postID"`
+	ParentID *int64    `json:"parentID,omitempty"`
 	Content  string    `json:"content"`
 }
 
@@ -32,17 +31,17 @@ type NewPost struct {
 	AuthorID        uuid.UUID `json:"authorID"`
 	Title           string    `json:"title"`
 	Content         string    `json:"content"`
-	CommentsEnabled bool      `json:"commentsEnabled"`
+	CommentsAllowed bool      `json:"commentsAllowed"`
 }
 
 type Post struct {
-	ID              int        `json:"id"`
+	ID              int64      `json:"id"`
 	AuthorID        uuid.UUID  `json:"authorID"`
 	Title           string     `json:"title"`
 	Content         string     `json:"content"`
 	CommentsAllowed bool       `json:"commentsAllowed"`
-	CreateDate      time.Time  `json:"createDate"`
 	Comments        []*Comment `json:"comments"`
+	CreatedAt       time.Time  `json:"created_at"`
 }
 
 type Query struct {

@@ -13,37 +13,77 @@ import (
 )
 
 // CreatePost is the resolver for the createPost field.
-func (r *mutationResolver) CreatePost(ctx context.Context, input model.NewPost) (*model.Post, error) {
-	panic(fmt.Errorf("not implemented: CreatePost - createPost"))
+func (r *mutationResolver) CreatePost(ctx context.Context, postInput model.NewPost) (*model.Post, error) {
+	post, err := r.PostService.CreatePost(ctx, &postInput)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create post: %w", err)
+	}
+	return post, nil
 }
 
 // CreateComment is the resolver for the createComment field.
-func (r *mutationResolver) CreateComment(ctx context.Context, input model.NewComment) (*model.Comment, error) {
-	panic(fmt.Errorf("not implemented: CreateComment - createComment"))
+func (r *mutationResolver) CreateComment(ctx context.Context, commentInput model.NewComment) (*model.Comment, error) {
+	comment, err := r.CommentService.CreateComment(ctx, &commentInput)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create comment: %w", err)
+	}
+	return comment, nil
 }
 
-// AllowComments is the resolver for the allowComments field.
-func (r *mutationResolver) AllowComments(ctx context.Context, authorID uuid.UUID, postID int, enabled bool) (*model.Post, error) {
-	panic(fmt.Errorf("not implemented: AllowComments - allowComments"))
+// UpdateAllowComments is the resolver for the updateAllowComments field.
+func (r *mutationResolver) UpdateAllowComments(ctx context.Context, postID int64, authorID uuid.UUID, commentsAllowed bool) (*model.Post, error) {
+	post, err := r.PostService.AllowComments(ctx, authorID.String(), postID, commentsAllowed)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update allow comments: %w", err)
+	}
+	return post, nil
+}
+
+// Comments is the resolver for the comments field.
+func (r *postResolver) Comments(ctx context.Context, obj *model.Post, offset *int64, limit *int64) ([]*model.Comment, error) {
+	defaultLimit := int64(20)
+	defaultOffset := int64(0)
+	if limit == nil {
+		limit = &defaultLimit
+	}
+	if offset == nil {
+		offset = &defaultOffset
+	}
+	comments, err := r.PostService.GetCommentsForPost(ctx, obj.ID, *offset, *limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get comments for post: %w", err)
+	}
+	return comments, nil
 }
 
 // Posts is the resolver for the posts field.
 func (r *queryResolver) Posts(ctx context.Context) ([]*model.Post, error) {
-	panic(fmt.Errorf("not implemented: Posts - posts"))
+	posts, err := r.PostService.GetPosts(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get posts: %w", err)
+	}
+	return posts, nil
 }
 
 // Post is the resolver for the post field.
-func (r *queryResolver) Post(ctx context.Context, id int) (*model.Post, error) {
-	panic(fmt.Errorf("not implemented: Post - post"))
+func (r *queryResolver) Post(ctx context.Context, postID int64) (*model.Post, error) {
+	post, err := r.PostService.GetPost(ctx, postID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get post: %w", err)
+	}
+	return post, nil
 }
 
 // CommentAdded is the resolver for the commentAdded field.
-func (r *subscriptionResolver) CommentAdded(ctx context.Context, postID string) (<-chan *model.Comment, error) {
+func (r *subscriptionResolver) CommentAdded(ctx context.Context, postID int64) (<-chan *model.Comment, error) {
 	panic(fmt.Errorf("not implemented: CommentAdded - commentAdded"))
 }
 
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
+// Post returns PostResolver implementation.
+func (r *Resolver) Post() PostResolver { return &postResolver{r} }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
@@ -52,5 +92,6 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 func (r *Resolver) Subscription() SubscriptionResolver { return &subscriptionResolver{r} }
 
 type mutationResolver struct{ *Resolver }
+type postResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type subscriptionResolver struct{ *Resolver }
