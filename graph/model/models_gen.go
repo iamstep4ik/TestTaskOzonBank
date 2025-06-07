@@ -9,12 +9,14 @@ import (
 )
 
 type Comment struct {
-	ID        int64     `json:"id"`
-	AuthorID  uuid.UUID `json:"authorID"`
-	PostID    int64     `json:"postID"`
-	ParentID  *int64    `json:"parentID,omitempty"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        int        `json:"id"`
+	AuthorID  uuid.UUID  `json:"authorID"`
+	PostID    int        `json:"postID"`
+	ParentID  *int       `json:"parentID,omitempty"`
+	Content   string     `json:"content"`
+	CreatedAt time.Time  `json:"created_at"`
+	Replies   []*Comment `json:"replies"`
+	Depth     int32      `json:"depth"`
 }
 
 type Mutation struct {
@@ -22,8 +24,8 @@ type Mutation struct {
 
 type NewComment struct {
 	AuthorID uuid.UUID `json:"authorID"`
-	PostID   int64     `json:"postID"`
-	ParentID *int64    `json:"parentID,omitempty"`
+	PostID   int       `json:"postID"`
+	ParentID *int      `json:"parentID,omitempty"`
 	Content  string    `json:"content"`
 }
 
@@ -35,7 +37,7 @@ type NewPost struct {
 }
 
 type Post struct {
-	ID              int64      `json:"id"`
+	ID              int        `json:"id"`
 	AuthorID        uuid.UUID  `json:"authorID"`
 	Title           string     `json:"title"`
 	Content         string     `json:"content"`

@@ -12,6 +12,16 @@ import (
 	"github.com/iamstep4ik/TestTaskOzonBank/graph/model"
 )
 
+// Replies is the resolver for the replies field.
+func (r *commentResolver) Replies(ctx context.Context, obj *model.Comment, offset *int, limit *int) ([]*model.Comment, error) {
+	panic(fmt.Errorf("not implemented: Replies - replies"))
+}
+
+// Depth is the resolver for the depth field.
+func (r *commentResolver) Depth(ctx context.Context, obj *model.Comment) (int32, error) {
+	panic(fmt.Errorf("not implemented: Depth - depth"))
+}
+
 // CreatePost is the resolver for the createPost field.
 func (r *mutationResolver) CreatePost(ctx context.Context, postInput model.NewPost) (*model.Post, error) {
 	post, err := r.PostService.CreatePost(ctx, &postInput)
@@ -31,7 +41,7 @@ func (r *mutationResolver) CreateComment(ctx context.Context, commentInput model
 }
 
 // UpdateAllowComments is the resolver for the updateAllowComments field.
-func (r *mutationResolver) UpdateAllowComments(ctx context.Context, postID int64, authorID uuid.UUID, commentsAllowed bool) (*model.Post, error) {
+func (r *mutationResolver) UpdateAllowComments(ctx context.Context, postID int, authorID uuid.UUID, commentsAllowed bool) (*model.Post, error) {
 	post, err := r.PostService.AllowComments(ctx, authorID.String(), postID, commentsAllowed)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update allow comments: %w", err)
@@ -40,7 +50,7 @@ func (r *mutationResolver) UpdateAllowComments(ctx context.Context, postID int64
 }
 
 // Comments is the resolver for the comments field.
-func (r *postResolver) Comments(ctx context.Context, obj *model.Post, offset *int64, limit *int64) ([]*model.Comment, error) {
+func (r *postResolver) Comments(ctx context.Context, obj *model.Post, offset *int, limit *int) ([]*model.Comment, error) {
 	defaultLimit := int64(20)
 	defaultOffset := int64(0)
 	if limit == nil {
@@ -66,7 +76,7 @@ func (r *queryResolver) Posts(ctx context.Context) ([]*model.Post, error) {
 }
 
 // Post is the resolver for the post field.
-func (r *queryResolver) Post(ctx context.Context, postID int64) (*model.Post, error) {
+func (r *queryResolver) Post(ctx context.Context, postID int) (*model.Post, error) {
 	post, err := r.PostService.GetPost(ctx, postID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get post: %w", err)
@@ -75,9 +85,12 @@ func (r *queryResolver) Post(ctx context.Context, postID int64) (*model.Post, er
 }
 
 // CommentAdded is the resolver for the commentAdded field.
-func (r *subscriptionResolver) CommentAdded(ctx context.Context, postID int64) (<-chan *model.Comment, error) {
+func (r *subscriptionResolver) CommentAdded(ctx context.Context, postID int) (<-chan *model.Comment, error) {
 	panic(fmt.Errorf("not implemented: CommentAdded - commentAdded"))
 }
+
+// Comment returns CommentResolver implementation.
+func (r *Resolver) Comment() CommentResolver { return &commentResolver{r} }
 
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
@@ -91,6 +104,7 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 // Subscription returns SubscriptionResolver implementation.
 func (r *Resolver) Subscription() SubscriptionResolver { return &subscriptionResolver{r} }
 
+type commentResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type postResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
