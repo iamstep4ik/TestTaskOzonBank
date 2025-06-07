@@ -27,6 +27,7 @@ func (r *mutationResolver) CreateComment(ctx context.Context, commentInput model
 	if err != nil {
 		return nil, fmt.Errorf("failed to create comment: %w", err)
 	}
+	r.SubscriptionService.Publish(comment.PostID, comment)
 	return comment, nil
 }
 
@@ -76,7 +77,15 @@ func (r *queryResolver) Post(ctx context.Context, postID int64) (*model.Post, er
 
 // CommentAdded is the resolver for the commentAdded field.
 func (r *subscriptionResolver) CommentAdded(ctx context.Context, postID int64) (<-chan *model.Comment, error) {
-	panic(fmt.Errorf("not implemented: CommentAdded - commentAdded"))
+	ch := make(chan *model.Comment, 1)
+	r.SubscriptionService.Subscribe(postID, ch)
+
+	go func() {
+		<-ctx.Done()
+		r.SubscriptionService.Unsubscribe(postID, ch)
+	}()
+
+	return ch, nil
 }
 
 // Mutation returns MutationResolver implementation.
