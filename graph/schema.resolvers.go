@@ -12,6 +12,16 @@ import (
 	"github.com/iamstep4ik/TestTaskOzonBank/graph/model"
 )
 
+// Replies is the resolver for the replies field.
+func (r *commentResolver) Replies(ctx context.Context, obj *model.Comment, offset *int64, limit *int64) ([]*model.Comment, error) {
+	panic(fmt.Errorf("not implemented: Replies - replies"))
+}
+
+// Depth is the resolver for the depth field.
+func (r *commentResolver) Depth(ctx context.Context, obj *model.Comment) (int, error) {
+	panic(fmt.Errorf("not implemented: Depth - depth"))
+}
+
 // CreatePost is the resolver for the createPost field.
 func (r *mutationResolver) CreatePost(ctx context.Context, postInput model.NewPost) (*model.Post, error) {
 	post, err := r.PostService.CreatePost(ctx, &postInput)
@@ -88,6 +98,9 @@ func (r *subscriptionResolver) CommentAdded(ctx context.Context, postID int64) (
 	return ch, nil
 }
 
+// Comment returns CommentResolver implementation.
+func (r *Resolver) Comment() CommentResolver { return &commentResolver{r} }
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
@@ -100,6 +113,7 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 // Subscription returns SubscriptionResolver implementation.
 func (r *Resolver) Subscription() SubscriptionResolver { return &subscriptionResolver{r} }
 
+type commentResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type postResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
