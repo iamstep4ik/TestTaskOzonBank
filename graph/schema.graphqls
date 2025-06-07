@@ -22,6 +22,8 @@ type Comment {
   parentID: Int64
   content: String!
   created_at: Time!
+  replies(offset: Int64, limit: Int64): [Comment!]! @goField(forceResolver: true)
+  depth: Int! @goField(forceResolver: true)
 }
 
 type Query {
