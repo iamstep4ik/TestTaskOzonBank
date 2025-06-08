@@ -1,20 +1,22 @@
 # TestTaskOzonBank
 
-
 ### Инструкция по установке
 
 1. **Для запуска проекта склонируйте репозиторий:**
+
 ```bash
 git clone https://github.com/iamstep4ik/TestTaskOzonBank.git
 cd TestTaskOzonBank
 ```
 
 2. **Запуск в Docker**
+
 ```bash
 docker compose up -d
 ```
 
 ### Пример .env файла
+
 ```code
 SERVER_HOST=localhost
 SERVER_PORT=8000
@@ -33,19 +35,21 @@ GOOSE_DBSTRING=postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=DB
 LOG_LEVEL=info
 STORAGE_TYPE=db
 ```
-Для смены типа хранилища на **in-memory**, поменяйте в **.env**  **STORAGE_TYPE** на **memory**
 
-### Для тестирования API 
+Для смены типа хранилища на **in-memory**, поменяйте в **.env** **STORAGE_TYPE** на **memory**
+
+### Для тестирования API
 
 GraphQL Playground
- * **http://localhost:8080**
 
-### Коллекция запросов Postman
-
+- **http://localhost:8080**
 
 ### Примеры запросов:
-####  Mutations:
+
+#### Mutations:
+
 1. Запрос для создания поста
+
 ```code
 mutation{
   createPost(postInput:{
@@ -61,6 +65,7 @@ mutation{
 ```
 
 2. Запрос для создания комментария
+
 ```code
 mutation{
   createComment(commentInput:{
@@ -74,7 +79,9 @@ mutation{
   }
 }
 ```
+
 3. Запрос для обновления разрешения комментировать посты
+
 ```code
 mutation{
   updateAllowComments(
@@ -90,8 +97,10 @@ mutation{
 }
 ```
 
-####  Queries:
+#### Queries:
+
 1. Вывод определенного поста по id
+
 ```code
 query{
   post(
@@ -107,6 +116,7 @@ query{
 ```
 
 2. Вывод всех постов и комментариев к нему
+
 ```code
 query{
   posts{
@@ -124,10 +134,10 @@ query{
 }
 ```
 
-
-####  Subscription:
+#### Subscription:
 
 Позволяет подписаться на уведомления по новым комментариям к посту
+
 ```code
 subscription {
   commentAdded(postID: 2) {
