@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:17
+    container_name: test_task_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+        test: ["CMD", "pg_isready", "-U", "${DB_USER}"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+    env_file: .env
+
+  migrations:
+    image: ghcr.io/kukymbr/goose-docker:latest
+    container_name: test_task_migrations
+    environment:
+      - GOOSE_DRIVER=${GOOSE_DRIVER}
+      - GOOSE_DBSTRING=${GOOSE_DBSTRING}
+    depends_on:
+       db: 
+         condition: service_healthy
+    volumes:
+      - ./migrations:/migrations
+    env_file:
+      - .env
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+        DB_USER: ${DB_USER}
+        DB_PASSWORD: ${DB_PASSWORD}
+        DB_NAME: ${DB_NAME}
+        DB_SSL: ${DB_SSL}
+        DB_HOST: ${DB_HOST}
+        DB_PORT: ${DB_PORT}
+        SERVER_HOST: ${SERVER_HOST}
+        SERVER_PORT: ${SERVER_PORT}
+        STORAGE_TYPE: ${STORAGE_TYPE}
+    ports:
+        - "8000:8000"
+    depends_on:
+        db:
+          condition: service_healthy
+    env_file: .env
+
+volumes:
+  db_data:

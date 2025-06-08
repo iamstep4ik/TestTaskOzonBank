@@ -4,18 +4,17 @@ import (
 	"context"
 
 	"github.com/iamstep4ik/TestTaskOzonBank/graph/model"
-	"github.com/iamstep4ik/TestTaskOzonBank/internal/log"
 	"github.com/iamstep4ik/TestTaskOzonBank/internal/storage"
 	"go.uber.org/zap"
 )
 
 type PostService struct {
-	storage storage.StorageMethods
+	storage storage.Storage
 	log     *zap.Logger
 }
 
-func NewPostService(storage storage.StorageMethods, logger *zap.Logger) *PostService {
-	return &PostService{storage: storage, log: log.GetLogger()}
+func NewPostService(storage storage.Storage, logger *zap.Logger) *PostService {
+	return &PostService{storage: storage, log: logger}
 }
 
 func (s *PostService) CreatePost(ctx context.Context, newPost *model.NewPost) (*model.Post, error) {

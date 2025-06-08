@@ -3,11 +3,13 @@ package config
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/iamstep4ik/TestTaskOzonBank/internal/log"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
-	"time"
 )
 
 type Config struct {
@@ -23,6 +25,11 @@ type Config struct {
 		Password string `envconfig:"DB_PASSWORD"`
 		SSLMode  string `envconfig:"DB_SSLMODE"`
 	} `envconfig:"DATABASE"`
+	Redis struct {
+		Addr     string `envconfig:"REDIS_ADDR"`
+		Password string `envconfig:"REDIS_PASSWORD"`
+		DB       int    `envconfig:"REDIS_DB"`
+	} `envconfig:"REDIS"`
 }
 
 func NewConfig() (*Config, error) {
@@ -51,4 +58,22 @@ func (c *Config) ConnectDatabase(ctx context.Context, cfg *Config) (*pgxpool.Poo
 		log.Error("Failed to ping database", zap.Error(err))
 	}
 	return dbpool, nil
+}
+func (c *Config) ConnectRedis(ctx context.Context) (*redis.Client, error) {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     c.Redis.Addr,
+		Password: c.Redis.Password,
+		DB:       c.Redis.DB,
+	})
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	_, err := rdb.Ping(ctx).Result()
+	if err != nil {
+		log.Error("Failed to connect to Redis", zap.Error(err))
+		return nil, err
+	}
+
+	return rdb, nil
 }

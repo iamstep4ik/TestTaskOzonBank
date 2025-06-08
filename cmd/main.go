@@ -15,7 +15,7 @@ import (
 	"github.com/iamstep4ik/TestTaskOzonBank/internal/log"
 	commentservice "github.com/iamstep4ik/TestTaskOzonBank/internal/service/comment_service"
 	postservice "github.com/iamstep4ik/TestTaskOzonBank/internal/service/post_service"
-	"github.com/iamstep4ik/TestTaskOzonBank/internal/storage/db"
+	"github.com/iamstep4ik/TestTaskOzonBank/internal/storage"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 )
@@ -60,14 +60,18 @@ func main() {
 	}
 	log.Info("Database connection established", zap.String("host", cfg.Database.Host), zap.String("port", cfg.Database.Port), zap.String("name", cfg.Database.Name))
 	defer dbpool.Close()
+	storageName := os.Getenv("STORAGE_TYPE")
+	storage := storage.NewStorage(ctx, dbpool)
 
-	storage := db.NewStorage(dbpool)
+	log.Info("Using storage", zap.String("type", storageName))
+
 	postService := postservice.NewPostService(storage, log.GetLogger())
 	commentService := commentservice.NewCommentService(storage, log.GetLogger())
 	resolver := graph.NewResolver(postService, commentService)
 
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
 	srv.AddTransport(transport.Options{})
+	srv.AddTransport(transport.Websocket{})
 	srv.AddTransport(transport.GET{})
 	srv.AddTransport(transport.POST{})
 	srv.Use(extension.Introspection{})

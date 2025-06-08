@@ -14,12 +14,20 @@ import (
 
 // Replies is the resolver for the replies field.
 func (r *commentResolver) Replies(ctx context.Context, obj *model.Comment, offset *int64, limit *int64) ([]*model.Comment, error) {
-	panic(fmt.Errorf("not implemented: Replies - replies"))
+	replies, err := r.CommentService.GetReplies(ctx, obj.ID, offset, limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get replies for comment: %w", err)
+	}
+	return replies, nil
 }
 
 // Depth is the resolver for the depth field.
 func (r *commentResolver) Depth(ctx context.Context, obj *model.Comment) (int, error) {
-	panic(fmt.Errorf("not implemented: Depth - depth"))
+	depth, err := r.CommentService.GetCommentDepth(ctx, obj.ID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get comment depth: %w", err)
+	}
+	return depth, nil
 }
 
 // CreatePost is the resolver for the createPost field.
